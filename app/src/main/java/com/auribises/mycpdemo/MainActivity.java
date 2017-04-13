@@ -2,9 +2,13 @@ package com.auribises.mycpdemo;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -77,6 +81,9 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             }
         });
 
+        rbMale.setOnCheckedChangeListener(this);
+        rbFemale.setOnCheckedChangeListener(this);
+
         resolver = getContentResolver();
     }
 
@@ -119,6 +126,8 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         Uri dummy = resolver.insert(Util.STUDENT_URI,values);
         Toast.makeText(this,student.getName()+ " Registered Successfully "+dummy.getLastPathSegment(),Toast.LENGTH_LONG).show();
 
+        Log.i("Insert",student.toString());
+
         clearFields();
     }
 
@@ -129,5 +138,27 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         spCity.setSelection(0);
         rbMale.setChecked(false);
         rbFemale.setChecked(false);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        menu.add(0,101,0,"All Students");
+
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+
+        if(id == 101){
+            Intent i = new Intent(MainActivity.this,AllStudentsActivity.class);
+            startActivity(i);
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

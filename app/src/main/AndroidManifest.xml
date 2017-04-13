@@ -21,7 +21,9 @@
             android:name=".StudentProvider"
             android:authorities="com.auribises.mycpdemo.studentprovider"
             android:enabled="true"
-            android:exported="true"></provider>
+            android:exported="true" />
+
+        <activity android:name=".AllStudentsActivity"></activity>
     </application>
 
 </manifest>
