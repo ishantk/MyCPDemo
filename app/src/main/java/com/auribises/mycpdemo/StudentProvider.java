@@ -16,8 +16,9 @@ public class StudentProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        // Implement this to handle requests to delete one or more rows.
-        throw new UnsupportedOperationException("Not yet implemented");
+        String tabName = uri.getLastPathSegment();
+        int i = sqLiteDatabase.delete(tabName,selection,null);
+        return i;
     }
 
     @Override
@@ -57,8 +58,9 @@ public class StudentProvider extends ContentProvider {
     @Override
     public int update(Uri uri, ContentValues values, String selection,
                       String[] selectionArgs) {
-        // TODO: Implement this to handle requests to update one or more rows.
-        throw new UnsupportedOperationException("Not yet implemented");
+        String tabName = uri.getLastPathSegment();
+        int i = sqLiteDatabase.update(tabName,values,selection,null);
+        return i;
     }
 
     class DBHelper extends SQLiteOpenHelper{

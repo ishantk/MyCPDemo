@@ -22,7 +22,7 @@ public class StudentAdapter extends ArrayAdapter<Student> {
 
     Context context;
     int resource;
-    ArrayList<Student> studentList;
+    ArrayList<Student> studentList,tempList;
 
     public StudentAdapter(Context context, int resource, ArrayList<Student> objects) {
         super(context, resource, objects);
@@ -30,6 +30,8 @@ public class StudentAdapter extends ArrayAdapter<Student> {
         this.context = context;
         this.resource = resource;
         studentList = objects;
+        tempList = new ArrayList<>();
+        tempList.addAll(studentList);
     }
 
     @NonNull
@@ -51,5 +53,22 @@ public class StudentAdapter extends ArrayAdapter<Student> {
         Log.i("Test",student.toString());
 
         return view;
+    }
+
+    public void filter(String str){
+
+        studentList.clear();
+
+        if(str.length()==0){
+            studentList.addAll(tempList);
+        }else{
+            for(Student s : tempList){
+                if(s.getName().toLowerCase().contains(str.toLowerCase())){
+                    studentList.add(s);
+                }
+            }
+        }
+
+        notifyDataSetChanged();
     }
 }

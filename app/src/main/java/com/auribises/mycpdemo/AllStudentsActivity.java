@@ -2,13 +2,18 @@ package com.auribises.mycpdemo;
 
 import android.content.ContentResolver;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -20,11 +25,17 @@ public class AllStudentsActivity extends AppCompatActivity implements AdapterVie
     @InjectView(R.id.listView)
     ListView listView;
 
+    @InjectView(R.id.editTextSearch)
+    EditText eTxtSearch;
+
     ArrayList<Student> studentList;
 
     ContentResolver resolver;
 
     StudentAdapter adapter;
+
+    Student student;
+    int pos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +45,28 @@ public class AllStudentsActivity extends AppCompatActivity implements AdapterVie
         ButterKnife.inject(this);
 
         resolver = getContentResolver();
+
+
+        eTxtSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                String str = charSequence.toString();
+                if(adapter!=null){
+                    adapter.filter(str);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
 
         retrieveFromDB();
     }
@@ -75,6 +108,8 @@ public class AllStudentsActivity extends AppCompatActivity implements AdapterVie
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+        pos = i;
+        student = studentList.get(i);
         showOptions();
     }
 
@@ -85,6 +120,22 @@ public class AllStudentsActivity extends AppCompatActivity implements AdapterVie
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
 
+                switch (i){
+                    case 0:
+                        showStudent();
+                        break;
+
+                    case 1:
+                        Intent intent = new Intent(AllStudentsActivity.this,MainActivity.class);
+                        intent.putExtra("keyStudent",student);
+                        startActivity(intent);
+                        break;
+
+                    case 2:
+                        deleteStudent();
+                        break;
+                }
+
             }
         });
         //AlertDialog dialog = builder.create();
@@ -92,4 +143,38 @@ public class AllStudentsActivity extends AppCompatActivity implements AdapterVie
 
         builder.create().show();
     }
+
+    void showStudent(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Details of "+student.getName());
+        builder.setMessage(student.toString());
+        builder.setPositiveButton("Done",null);
+        builder.create().show();
+    }
+
+    void deleteStudent(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Delete "+ student.getName());
+        builder.setMessage("Do you wish to Delete?");
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                // Code goes here to delete record from DB
+                String where = Util.COL_ID+ " = "+student.getId();
+                //String where = Util.COL_NAME+ " = '"+student.getName()+"'";
+                int j = resolver.delete(Util.STUDENT_URI,where,null);
+                if(j>0){
+                    studentList.remove(pos);
+                    adapter.notifyDataSetChanged();
+                    Toast.makeText(AllStudentsActivity.this,student.getName()+" deleted successfully..",Toast.LENGTH_LONG).show();
+                }
+
+            }
+        });
+        builder.setNegativeButton("Cancel",null);
+        builder.create().show();
+    }
+
 }
+
+

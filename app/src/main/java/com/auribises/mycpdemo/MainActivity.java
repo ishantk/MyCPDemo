@@ -43,10 +43,14 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     Spinner spCity;
     ArrayAdapter<String> adapter;
 
-    Student student;
+    @InjectView(R.id.buttonSubmit)
+    Button btnSubmit;
+
+    Student student,rcvStudent;
 
     ContentResolver resolver;
 
+    boolean updateMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +89,35 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         rbFemale.setOnCheckedChangeListener(this);
 
         resolver = getContentResolver();
+
+        Intent rcv = getIntent();
+        updateMode = rcv.hasExtra("keyStudent");
+
+        if(updateMode){
+            rcvStudent = (Student)rcv.getSerializableExtra("keyStudent");
+            eTxtName.setText(rcvStudent.getName());
+            eTxtPhone.setText(rcvStudent.getPhone());
+            eTxtEmail.setText(rcvStudent.getEmail());
+
+
+            if(rcvStudent.getGender().equals("Male")){
+                rbMale.setChecked(true);
+            }else{
+                rbFemale.setChecked(true);
+            }
+
+            int p = 0;
+            for(int i=0;i<adapter.getCount();i++){
+                if(adapter.getItem(i).equals(rcvStudent.getCity())){
+                    p = i;
+                    break;
+                }
+            }
+
+            spCity.setSelection(p);
+
+            btnSubmit.setText("Update");
+        }
     }
 
     public void clickHandler(View view){
@@ -123,12 +156,23 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         values.put(Util.COL_GENDER,student.getGender());
         values.put(Util.COL_CITY,student.getCity());
 
-        Uri dummy = resolver.insert(Util.STUDENT_URI,values);
-        Toast.makeText(this,student.getName()+ " Registered Successfully "+dummy.getLastPathSegment(),Toast.LENGTH_LONG).show();
+        if(!updateMode){
+            Uri dummy = resolver.insert(Util.STUDENT_URI,values);
+            Toast.makeText(this,student.getName()+ " Registered Successfully "+dummy.getLastPathSegment(),Toast.LENGTH_LONG).show();
 
-        Log.i("Insert",student.toString());
+            Log.i("Insert",student.toString());
 
-        clearFields();
+            clearFields();
+        }else{
+            String where = Util.COL_ID + " = "+rcvStudent.getId();
+            int i = resolver.update(Util.STUDENT_URI,values,where,null);
+            if(i>0){
+                Toast.makeText(this,"Updation Successful",Toast.LENGTH_LONG).show();
+                finish();
+            }
+        }
+
+
     }
 
     void clearFields(){

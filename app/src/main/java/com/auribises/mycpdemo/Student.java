@@ -1,11 +1,13 @@
 package com.auribises.mycpdemo;
 
+import java.io.Serializable;
+
 /**
  * Created by ishantkumar on 11/04/17.
  */
 
 // POJO or Bean or Model
-public class Student {
+public class Student implements Serializable{
 
     // Attributes
     int id;
@@ -74,13 +76,12 @@ public class Student {
 
     @Override
     public String toString() {
-        return "Student{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", phone='" + phone + '\'' +
-                ", email='" + email + '\'' +
-                ", gender='" + gender + '\'' +
-                ", city='" + city + '\'' +
-                '}';
+        return "Details of Student\n" +
+                "\nID is: " + id +
+                "\nName is: " + name +
+                "\nPhone is: " + phone +
+                "\nEmail is: " + email +
+                "\nGender is: " + gender+
+                "\nCity is: " + city ;
     }
 }
