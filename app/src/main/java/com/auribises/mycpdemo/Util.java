@@ -33,4 +33,7 @@ public class Util {
     // URI
     public static final Uri STUDENT_URI = Uri.parse("content://com.auribises.mycpdemo.studentprovider/"+TAB_NAME);
 
+
+    // URL
+    public static final String INSERT_STUDENT = "http://www.auribises.com/enc2017/insert.jsp";
 }

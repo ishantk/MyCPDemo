@@ -1,5 +1,6 @@
 package com.auribises.mycpdemo;
 
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -18,6 +19,13 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -52,12 +60,20 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 
     boolean updateMode;
 
+    RequestQueue requestQueue;
+
+    ProgressDialog progressDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         ButterKnife.inject(this);
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Please Wait..");
+        progressDialog.setCancelable(false);
 
         student = new Student();
 
@@ -89,6 +105,8 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         rbFemale.setOnCheckedChangeListener(this);
 
         resolver = getContentResolver();
+
+        requestQueue = Volley.newRequestQueue(this);
 
         Intent rcv = getIntent();
         updateMode = rcv.hasExtra("keyStudent");
@@ -129,8 +147,32 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             student.setEmail(eTxtEmail.getText().toString().trim());
 
 
-            insertIntoDB();
+            //insertIntoDB();
+            insertIntoCloud();
         }
+    }
+
+    void insertIntoCloud(){
+
+        progressDialog.show();
+
+        // Volley String Request
+        StringRequest request = new StringRequest(Request.Method.GET, Util.INSERT_STUDENT, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                progressDialog.dismiss();
+                Toast.makeText(MainActivity.this,"Response: "+response,Toast.LENGTH_LONG).show();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                progressDialog.dismiss();
+                Toast.makeText(MainActivity.this,"Some Error",Toast.LENGTH_LONG).show();
+            }
+        });
+
+        requestQueue.add(request); // execute the request, send it ti server
+
     }
 
     @Override
