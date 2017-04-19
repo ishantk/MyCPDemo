@@ -44,6 +44,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/editTextName"
+            android:inputType="textPersonName"
             android:hint="Enter Your Name"/>
 
         <EditText
@@ -51,6 +52,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/editTextPhone"
             android:hint="Enter Your Phone"
+            android:inputType="phone"
             android:layout_marginTop="10dp"/>
 
         <EditText
@@ -58,6 +60,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/editTextEmail"
             android:hint="Enter Your Email"
+            android:inputType="textEmailAddress"
             android:layout_marginTop="10dp"/>
 
         <RadioGroup

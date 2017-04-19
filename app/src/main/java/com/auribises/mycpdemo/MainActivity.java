@@ -4,6 +4,8 @@ import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,12 +22,16 @@ import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -63,6 +69,9 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     RequestQueue requestQueue;
 
     ProgressDialog progressDialog;
+
+    ConnectivityManager connectivityManager;
+    NetworkInfo networkInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         Intent rcv = getIntent();
         updateMode = rcv.hasExtra("keyStudent");
 
+
         if(updateMode){
             rcvStudent = (Student)rcv.getSerializableExtra("keyStudent");
             eTxtName.setText(rcvStudent.getName());
@@ -138,6 +148,16 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         }
     }
 
+    boolean isNetworkConected(){
+
+        connectivityManager = (ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE);
+        networkInfo = connectivityManager.getActiveNetworkInfo();
+
+
+        return (networkInfo!=null && networkInfo.isConnected());
+
+    }
+
     public void clickHandler(View view){
         if(view.getId() == R.id.buttonSubmit){
             //String name = eTxtName.getText().toString().trim();
@@ -148,7 +168,15 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 
 
             //insertIntoDB();
-            insertIntoCloud();
+
+            if(validateFields()) {
+                if (isNetworkConected())
+                    insertIntoCloud();
+                else
+                    Toast.makeText(this, "Please connect to Internet", Toast.LENGTH_LONG).show();
+            }else {
+                Toast.makeText(this, "Please correct Input", Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -157,7 +185,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         progressDialog.show();
 
         // Volley String Request
-        StringRequest request = new StringRequest(Request.Method.GET, Util.INSERT_STUDENT, new Response.Listener<String>() {
+        /*StringRequest request = new StringRequest(Request.Method.GET, Util.INSERT_STUDENT, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 progressDialog.dismiss();
@@ -167,12 +195,39 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             @Override
             public void onErrorResponse(VolleyError error) {
                 progressDialog.dismiss();
-                Toast.makeText(MainActivity.this,"Some Error",Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this,"Some Error"+error.getMessage(),Toast.LENGTH_LONG).show();
             }
-        });
+        });*/
+
+        StringRequest request = new StringRequest(Request.Method.POST, Util.INSERT_STUDENT_PHP, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                progressDialog.dismiss();
+                Toast.makeText(MainActivity.this,"Response: "+response,Toast.LENGTH_LONG).show();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                progressDialog.dismiss();
+                Toast.makeText(MainActivity.this,"Some Error"+error.getMessage(),Toast.LENGTH_LONG).show();
+            }
+        })
+        {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> map = new HashMap<>();
+                map.put("name1",student.getName());
+                map.put("phone",student.getPhone());
+                map.put("email",student.getEmail());
+                map.put("gender",student.getGender());
+                map.put("city",student.getCity());
+                return map;
+            }
+        };
 
         requestQueue.add(request); // execute the request, send it ti server
 
+        clearFields();
     }
 
     @Override
@@ -246,5 +301,37 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    boolean validateFields(){
+        boolean flag = true;
+
+        if(student.getName().isEmpty()){
+            flag = false;
+            eTxtName.setError("Please Enter Name");
+        }
+
+        if(student.getPhone().isEmpty()){
+            flag = false;
+            eTxtPhone.setError("Please Enter Phone");
+        }else{
+            if(student.getPhone().length()<10){
+                flag = false;
+                eTxtPhone.setError("Please Enter 10 digits Phone Number");
+            }
+        }
+
+        if(student.getEmail().isEmpty()){
+            flag = false;
+            eTxtEmail.setError("Please Enter Email");
+        }else{
+            if(!(student.getEmail().contains("@") && student.getEmail().contains("."))){
+                flag = false;
+                eTxtEmail.setError("Please Enter correct Email");
+            }
+        }
+
+        return flag;
+
     }
 }
