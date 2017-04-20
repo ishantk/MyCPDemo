@@ -37,4 +37,7 @@ public class Util {
     // URL
     public static final String INSERT_STUDENT_JSP = "http://www.auribises.com/enc2017/insert.jsp";
     public static final String INSERT_STUDENT_PHP = "http://www.auribises.com/enc2017/insert.php";
+
+    public static final String RETRIEVE_STUDENT_JSP = "http://www.auribises.com/enc2017/retrieve.jsp";
+    public static final String RETRIEVE_STUDENT_PHP = "http://www.auribises.com/enc2017/retrieve.php";
 }

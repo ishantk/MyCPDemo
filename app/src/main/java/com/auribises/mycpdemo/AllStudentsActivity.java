@@ -1,5 +1,6 @@
 package com.auribises.mycpdemo;
 
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,6 +15,16 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -37,6 +48,10 @@ public class AllStudentsActivity extends AppCompatActivity implements AdapterVie
     Student student;
     int pos;
 
+    RequestQueue requestQueue;
+
+    ProgressDialog progressDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +59,11 @@ public class AllStudentsActivity extends AppCompatActivity implements AdapterVie
 
         ButterKnife.inject(this);
 
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Please Wait...");
+        progressDialog.setCancelable(false);
+
+        requestQueue = Volley.newRequestQueue(this);
         resolver = getContentResolver();
 
 
@@ -68,7 +88,62 @@ public class AllStudentsActivity extends AppCompatActivity implements AdapterVie
         });
 
 
-        retrieveFromDB();
+        //retrieveFromDB();
+        retrieveFromCloud();
+    }
+
+    void retrieveFromCloud(){
+
+        progressDialog.show();
+
+        studentList = new ArrayList<>();
+
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, Util.RETRIEVE_STUDENT_PHP, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    JSONArray jsonArray = jsonObject.getJSONArray("students");
+
+                    int id=0;
+                    String n="",p="",e="",g="",c="";
+                    for(int i=0;i<jsonArray.length();i++){
+                        JSONObject jObj = jsonArray.getJSONObject(i);
+
+                        id = jObj.getInt("id");
+                        n = jObj.getString("name");
+                        p = jObj.getString("phone");
+                        e = jObj.getString("email");
+                        g = jObj.getString("gender");
+                        c = jObj.getString("city");
+
+                        studentList.add(new Student(id,n,p,e,g,c));
+                    }
+
+                    adapter = new StudentAdapter(AllStudentsActivity.this,R.layout.list_item,studentList);
+                    listView.setAdapter(adapter);
+                    listView.setOnItemClickListener(AllStudentsActivity.this);
+
+                    progressDialog.dismiss();
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                    progressDialog.dismiss();
+                    Toast.makeText(AllStudentsActivity.this,"Some Exception",Toast.LENGTH_LONG).show();
+                }
+
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                progressDialog.dismiss();
+                Toast.makeText(AllStudentsActivity.this,"Some Error",Toast.LENGTH_LONG).show();
+            }
+        });
+
+        requestQueue.add(stringRequest); // Execute the Request
     }
 
     void retrieveFromDB(){
