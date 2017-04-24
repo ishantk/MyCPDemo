@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -27,6 +28,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -234,7 +237,7 @@ public class AllStudentsActivity extends AppCompatActivity implements AdapterVie
         builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                // Code goes here to delete record from DB
+                /*// Code goes here to delete record from DB
                 String where = Util.COL_ID+ " = "+student.getId();
                 //String where = Util.COL_NAME+ " = '"+student.getName()+"'";
                 int j = resolver.delete(Util.STUDENT_URI,where,null);
@@ -242,12 +245,58 @@ public class AllStudentsActivity extends AppCompatActivity implements AdapterVie
                     studentList.remove(pos);
                     adapter.notifyDataSetChanged();
                     Toast.makeText(AllStudentsActivity.this,student.getName()+" deleted successfully..",Toast.LENGTH_LONG).show();
-                }
+                }*/
+                deleteFromCloud();
 
             }
         });
         builder.setNegativeButton("Cancel",null);
         builder.create().show();
+    }
+
+    void deleteFromCloud(){
+        progressDialog.show();
+        StringRequest request = new StringRequest(Request.Method.POST, Util.DELETE_STUDENT_PHP, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+
+                try{
+                    JSONObject jsonObject = new JSONObject(response);
+                    int success = jsonObject.getInt("success");
+                    String message = jsonObject.getString("message");
+
+                    if(success == 1){
+                        studentList.remove(pos);
+                        adapter.notifyDataSetChanged();
+                        Toast.makeText(AllStudentsActivity.this,message,Toast.LENGTH_LONG).show();
+                    }else{
+                        Toast.makeText(AllStudentsActivity.this,message,Toast.LENGTH_LONG).show();
+                    }
+                    progressDialog.dismiss();
+                }catch (Exception e){
+                    e.printStackTrace();
+                    progressDialog.dismiss();
+                    Toast.makeText(AllStudentsActivity.this,"Some Exception",Toast.LENGTH_LONG).show();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                progressDialog.dismiss();
+                Toast.makeText(AllStudentsActivity.this,"Some Volley Error: "+error.getMessage(),Toast.LENGTH_LONG).show();
+            }
+        })
+        {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> map = new HashMap<>();
+                map.put("id",String.valueOf(student.getId()));
+                return map;
+            }
+        };
+
+        requestQueue.add(request); // Execution of HTTP Request
+
     }
 
 }

@@ -34,10 +34,17 @@ public class Util {
     public static final Uri STUDENT_URI = Uri.parse("content://com.auribises.mycpdemo.studentprovider/"+TAB_NAME);
 
 
+    final static String URI = "http://www.auribises.com/enc2017/";
     // URL
     public static final String INSERT_STUDENT_JSP = "http://www.auribises.com/enc2017/insert.jsp";
     public static final String INSERT_STUDENT_PHP = "http://www.auribises.com/enc2017/insert.php";
 
     public static final String RETRIEVE_STUDENT_JSP = "http://www.auribises.com/enc2017/retrieve.jsp";
     public static final String RETRIEVE_STUDENT_PHP = "http://www.auribises.com/enc2017/retrieve.php";
+
+    public static final String DELETE_STUDENT_JSP = "http://www.auribises.com/enc2017/delete.jsp";
+    public static final String DELETE_STUDENT_PHP = "http://www.auribises.com/enc2017/delete.php";
+
+    public static final String UPDATE_STUDENT_JSP = URI+"update.jsp";
+    public static final String UPDATE_STUDENT_PHP = "http://www.auribises.com/enc2017/update.php";
 }

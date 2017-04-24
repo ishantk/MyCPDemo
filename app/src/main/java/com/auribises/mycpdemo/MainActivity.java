@@ -30,6 +30,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -182,6 +184,14 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 
     void insertIntoCloud(){
 
+        String url="";
+
+        if(!updateMode){
+            url = Util.INSERT_STUDENT_PHP;
+        }else{
+            url = Util.UPDATE_STUDENT_PHP;
+        }
+
         progressDialog.show();
 
         // Volley String Request
@@ -199,11 +209,30 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             }
         });*/
 
-        StringRequest request = new StringRequest(Request.Method.POST, Util.INSERT_STUDENT_PHP, new Response.Listener<String>() {
+        StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                progressDialog.dismiss();
-                Toast.makeText(MainActivity.this,"Response: "+response,Toast.LENGTH_LONG).show();
+
+                try{
+                    JSONObject jsonObject = new JSONObject(response);
+                    int success = jsonObject.getInt("success");
+                    String message = jsonObject.getString("message");
+
+                    if(success == 1){
+                        Toast.makeText(MainActivity.this,message,Toast.LENGTH_LONG).show();
+
+                        if(updateMode)
+                            finish();
+
+                    }else{
+                        Toast.makeText(MainActivity.this,message,Toast.LENGTH_LONG).show();
+                    }
+                    progressDialog.dismiss();
+                }catch (Exception e){
+                    e.printStackTrace();
+                    progressDialog.dismiss();
+                    Toast.makeText(MainActivity.this,"Some Exception",Toast.LENGTH_LONG).show();
+                }
             }
         }, new Response.ErrorListener() {
             @Override
@@ -216,6 +245,10 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String,String> map = new HashMap<>();
+
+                if(updateMode)
+                    map.put("id",String.valueOf(rcvStudent.getId()));
+
                 map.put("name1",student.getName());
                 map.put("phone",student.getPhone());
                 map.put("email",student.getEmail());
