@@ -30,6 +30,12 @@ public class Util {
             "CITY varchar(256)" +
             ")";
 
+
+    public static final String PREFS_NAME = "grocerytruck";
+    public static final String KEY_NAME = "keyName";
+    public static final String KEY_PHONE = "keyPhone";
+    public static final String KEY_EMAIL = "keyEmail";
+
     // URI
     public static final Uri STUDENT_URI = Uri.parse("content://com.auribises.mycpdemo.studentprovider/"+TAB_NAME);
 

@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -75,12 +76,18 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     ConnectivityManager connectivityManager;
     NetworkInfo networkInfo;
 
+    SharedPreferences preferences;
+    SharedPreferences.Editor editor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         ButterKnife.inject(this);
+
+        preferences = getSharedPreferences(Util.PREFS_NAME,MODE_PRIVATE);
+        editor = preferences.edit();
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Please Wait..");
@@ -220,6 +227,19 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 
                     if(success == 1){
                         Toast.makeText(MainActivity.this,message,Toast.LENGTH_LONG).show();
+
+                        if(!updateMode){
+
+                            editor.putString(Util.KEY_NAME,student.getName());
+                            editor.putString(Util.KEY_PHONE,student.getPhone());
+                            editor.putString(Util.KEY_EMAIL,student.getEmail());
+
+                            editor.commit();
+
+                            Intent home = new Intent(MainActivity.this,HomeActivity.class);
+                            startActivity(home);
+                            finish();
+                        }
 
                         if(updateMode)
                             finish();
