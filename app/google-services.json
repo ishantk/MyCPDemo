@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "654946446644",
+    "firebase_url": "https://grocerytruck-abc56.firebaseio.com",
+    "project_id": "grocerytruck-abc56",
+    "storage_bucket": "grocerytruck-abc56.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:654946446644:android:83cdee525fc4836c",
+        "android_client_info": {
+          "package_name": "com.auribises.mycpdemo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "654946446644-k0va6n95l25ah2q4c5riti3a9vhok4cb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBPMS6WusS1pf_CnUf6-TMC3CIRCxXD_vA"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
