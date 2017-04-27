@@ -30,6 +30,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.json.JSONObject;
 
@@ -191,6 +192,9 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 
     void insertIntoCloud(){
 
+        final String token = FirebaseInstanceId.getInstance().getToken();
+        Log.i("TOKEN",token);
+
         String url="";
 
         if(!updateMode){
@@ -274,6 +278,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                 map.put("email",student.getEmail());
                 map.put("gender",student.getGender());
                 map.put("city",student.getCity());
+                map.put("token",token);
                 return map;
             }
         };
